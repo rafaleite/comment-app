@@ -1,45 +1,45 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import NewComment from  './NewComment'
 import Comments from './Comments'
 import 'bootstrap-css-only'
 
-class App extends Component {
-  constructor(props) {
-    super(props)
+import base from './base'
 
-    this.state = {
-      comments: {
-        '1': {
-          comment: 'first comment'
-        },
-        '2': {
-          comment: 'second comment'
+class App extends Component {
+    constructor(props) {
+        super(props)
+
+        this.postNewComment = this.postNewComment.bind(this)
+
+        this.state = {
+            comments: {}
         }
-      }
+
+        this.refComments = base.syncState('comments', {
+            context: this,
+            state: 'comments'
+        })
+
     }
 
-    this.postNewComment = this.postNewComment.bind(this)
+    postNewComment(comment) {
+        const comments = {...this.state.comments}
+        const timestamp = Date.now()
+        comments[`comm-${timestamp}`] = comment
 
-  }
+        this.setState({
+            comments: comments
+        })
+    }
 
-  postNewComment(comment) {
-    const comments = {...this.state.comments}
-    const timestamp = Date.now()
-    comments[`comm-${timestamp}`] = comment
-
-    this.setState({
-      comments: comments
-    })
-  }
-
-  render() {
-    return (
-      <div className="container">
-        <NewComment postNewComment={this.postNewComment} />
-        <Comments comments={this.state.comments} />
-      </div>
-    );
-  }
+    render() {
+        return (
+            <div className="container">
+                <NewComment postNewComment={this.postNewComment}/>
+                <Comments comments={this.state.comments}/>
+            </div>
+        );
+    }
 }
 
 export default App;
