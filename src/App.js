@@ -1,5 +1,5 @@
-import React, {Component} from 'react'
-import NewComment from  './NewComment'
+import React, { Component } from 'react'
+import NewComment from './NewComment'
 import Comments from './Comments'
 import 'bootstrap-css-only'
 
@@ -10,18 +10,41 @@ class App extends Component {
         this.postNewComment = this.postNewComment.bind(this)
 
         this.state = {
-            comments: {}
+            comments: {},
+            isLoggedIn: false,
+            user: {}
         }
 
         this.refComments = this.props.base.syncState('comments', {
             context: this,
-            state: 'comments'
+            state: 'comments',
+            queries: {
+                orderByChild: 'comments',
+            },
+            onFailure(err) {
+                console.log(err);
+            }
+        })
+
+        this.props.auth.onAuthStateChanged((user) => {
+            if (user) {
+                this.setState({ isLoggedIn: true, user })
+            } else {
+                this.setState({ isLoggedIn: false, user: {} })
+            }
         })
 
     }
 
+    componentDidMount() {
+    }
+
     postNewComment(comment) {
-        const comments = {...this.state.comments}
+        comment.user = {
+            uid: this.state.user.uid,
+            name: this.state.user.displayName
+        }
+        const comments = { ...this.state.comments }
         const timestamp = Date.now()
         comments[`comm-${timestamp}`] = comment
 
@@ -30,11 +53,33 @@ class App extends Component {
         })
     }
 
+    auth(provider) {
+        this.props.auth.signInWithPopup(this.props.providers[provider]).then(function (result) {
+            console.log(result);
+        }).catch(function (error) {
+            console.log(error)
+        });
+    }
+
+
     render() {
         return (
             <div className="container">
-                <NewComment postNewComment={this.postNewComment}/>
-                <Comments comments={this.state.comments}/>
+                {this.state.isLoggedIn && 
+                    <div>
+                        Olá { this.state.user.displayName }
+                        <img alt={this.state.user.displayName} src={this.state.user.photoURL} />
+                        <button onClick={() => this.props.auth.signOut()}>Deslogar</button>
+                        <NewComment postNewComment={this.postNewComment} />
+                    </div>
+                }
+                
+                {!this.state.isLoggedIn &&
+                    <div className="alert alert-info">
+                        <button onClick={() => this.auth('facebook')} >Entre com o Facebook para comentar</button>
+                    </div>
+                }
+                <Comments comments={this.state.comments} />
             </div>
         );
     }

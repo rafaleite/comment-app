@@ -4,7 +4,7 @@ export default class Comments extends Component {
 
     renderComment(key, comment) {
         return (
-            <Comment key={key} comment={comment.comment} />
+            <Comment key={key} comment={comment.comment} user={comment.user}/>
         )
 
     }

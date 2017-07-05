@@ -15,4 +15,13 @@ const db = firebase.database(app)
 
 const base = Rebase.createClass(db)
 
+export const providers = {
+    facebook: new firebase.auth.FacebookAuthProvider(),
+    google: new firebase.auth.GoogleAuthProvider(),
+    twitter: new firebase.auth.TwitterAuthProvider(),
+    github: new firebase.auth.GithubAuthProvider()
+}
+
+export const auth = firebase.auth()
+
 export default base
